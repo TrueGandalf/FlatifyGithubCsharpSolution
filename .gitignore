@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# ignores added by Oleksii:
+FlatifyGithubCsharpSolution/FlatifyGithubCsharpSolution/appsettings.json
