@@ -8,12 +8,16 @@ class Program
 {
     static readonly HttpClient client = new HttpClient();
     static readonly string baseUrl = "https://api.github.com/repos/{owner}/{repo}/contents/";
+    static IConfiguration _configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
 
     static async Task Main(string[] args)
     {
-        string owner = "ownerName"; // Replace with the repo owner's name
-        string repo = "repoName"; // Replace with the repository name
-        string path = ""; // Start path. Leave empty to start from the repo root
+        string owner = _configuration["ownerName"]!; // Replace with the repo owner's name
+        string repo = _configuration["repoName"]!; // Replace with the repository name
+        string path = _configuration["path"]!; // Start path. Leave empty to start from the repo root
 
         try
         {
@@ -31,11 +35,7 @@ class Program
 
     static async Task FetchAndConcatenateFiles(string owner, string repo, string path, StringBuilder allCode)
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .Build();
-        string githubToken = configuration["GitHubToken"];
+        string githubToken = _configuration["GitHubToken"];
         Console.WriteLine(githubToken); // Just for demonstration
 
 
