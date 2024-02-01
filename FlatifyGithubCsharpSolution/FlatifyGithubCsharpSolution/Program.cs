@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace FlatifyGithubCsharpSolution;
 
@@ -29,11 +31,18 @@ class Program
 
     static async Task FetchAndConcatenateFiles(string owner, string repo, string path, StringBuilder allCode)
     {
+        IConfiguration configuration = new ConfigurationBuilder()
+                                   .AddJsonFile("appsettings.json")
+                                   .Build();
+        string githubToken = configuration["GitHubToken"];
+
+
         // Update the request URI with the current path
         var requestUri = new Uri($"{baseUrl}{path}?ref=master");
 
         // Set up the request
         client.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
         var response = await client.GetAsync(requestUri);
         response.EnsureSuccessStatusCode();
