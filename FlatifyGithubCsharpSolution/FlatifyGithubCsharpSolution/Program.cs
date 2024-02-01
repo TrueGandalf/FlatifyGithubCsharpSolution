@@ -27,6 +27,8 @@ class Program
             await FetchAndConcatenateFiles(owner, repo, pathToRepoFolder, allCode);
             System.IO.File.WriteAllText(pathToResultFile, allCode.ToString());
             Console.WriteLine("All .cs files have been concatenated.");
+            Console.WriteLine("Press Enter to exit.");
+            Console.ReadLine();
         }
         catch (HttpRequestException e)
         {
@@ -61,10 +63,16 @@ class Program
                 allCode.AppendLine(fileContent);
                 allCode.AppendLine("// end of content of " + item.Path);
                 allCode.AppendLine();
+
+                Console.WriteLine($"Added: {item.Path}");
             }
             else if (item.Type == "dir")
             {
                 await FetchAndConcatenateFiles(owner, repo, item.Path, allCode);
+            }
+            else
+            {
+                Console.WriteLine($"Ignored: {item.Path}");
             }
         }
     }
