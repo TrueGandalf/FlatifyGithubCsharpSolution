@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -17,13 +18,14 @@ class Program
     {
         string owner = _configuration["ownerName"]!; // Replace with the repo owner's name
         string repo = _configuration["repoName"]!; // Replace with the repository name
-        string path = _configuration["path"]!; // Start path. Leave empty to start from the repo root
+        string pathToRepoFolder = _configuration["pathToRepoFolder"]!; // Start path. Leave empty to start from the repo root
+        string pathToResultFile = _configuration["pathToResultFile"]!; // Start path. Leave empty to start from the repo root
 
         try
         {
             StringBuilder allCode = new StringBuilder();
-            await FetchAndConcatenateFiles(owner, repo, path, allCode);
-            System.IO.File.WriteAllText(@"path\to\your\output\file.cs", allCode.ToString());
+            await FetchAndConcatenateFiles(owner, repo, pathToRepoFolder, allCode);
+            System.IO.File.WriteAllText(pathToResultFile, allCode.ToString());
             Console.WriteLine("All .cs files have been concatenated.");
         }
         catch (HttpRequestException e)
@@ -48,23 +50,23 @@ class Program
         response.EnsureSuccessStatusCode();
         string responseBody = await response.Content.ReadAsStringAsync();
 
-        // Parse the JSON response body here and iterate over each item
-        // This pseudocode assumes you parse the JSON into an appropriate object
-        // Check if the item is a file and ends with .cs, then download and append its content
-        // If it's a directory, call this method recursively with the new path
+        var items = JsonConvert.DeserializeObject<List<GitHubContentItem>>(responseBody);
 
-        // Example:
-        // if (item.Type == "file" && item.Path.EndsWith(".cs"))
-        // {
-        //     string fileContent = await DownloadFileContent(item.DownloadUrl);
-        //     allCode.AppendLine("// " + item.Path);
-        //     allCode.AppendLine(fileContent);
-        //     allCode.AppendLine();
-        // }
-        // else if (item.Type == "dir")
-        // {
-        //     await FetchAndConcatenateFiles(owner, repo, item.Path, allCode);
-        // }
+        foreach (var item in items)
+        {
+            if (item.Type == "file" && item.Path.EndsWith(".cs"))
+            {
+                string fileContent = await DownloadFileContent(item.DownloadUrl);
+                allCode.AppendLine("// start of content of " + item.Path);
+                allCode.AppendLine(fileContent);
+                allCode.AppendLine("// end of content of " + item.Path);
+                allCode.AppendLine();
+            }
+            else if (item.Type == "dir")
+            {
+                await FetchAndConcatenateFiles(owner, repo, item.Path, allCode);
+            }
+        }
     }
 
     static async Task<string> DownloadFileContent(string downloadUrl)
