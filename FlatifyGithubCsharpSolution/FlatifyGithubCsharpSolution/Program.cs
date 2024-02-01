@@ -7,7 +7,7 @@ namespace FlatifyGithubCsharpSolution;
 class Program
 {
     static readonly HttpClient client = new HttpClient();
-    static readonly string baseUrl = "https://api.github.com/repos/{owner}/{repo}/contents/";
+    static readonly string baseUrl = "https://api.github.com/repos/";
     static IConfiguration _configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -35,12 +35,10 @@ class Program
 
     static async Task FetchAndConcatenateFiles(string owner, string repo, string path, StringBuilder allCode)
     {
-        string githubToken = _configuration["GitHubToken"];
-        Console.WriteLine(githubToken); // Just for demonstration
-
+        string githubToken = _configuration["GitHubToken"]!;
 
         // Update the request URI with the current path
-        var requestUri = new Uri($"{baseUrl}{path}?ref=master");
+        var requestUri = new Uri($"{baseUrl}{owner}/{repo}/contents/{path}?ref=main");//contents/{path}?ref=master
 
         // Set up the request
         client.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
