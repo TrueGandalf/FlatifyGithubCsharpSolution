@@ -29,4 +29,3 @@ The file `FlatifyGithubCsharpSolution/FlatifyGithubCsharpSolution/appsettings.js
 - `FlatifyGithubCsharpSolution/FlatifyGithubCsharpSolution/appsettingsExample.json`
 
 Ensure you replace the placeholder values in `appsettings.json` with your actual configuration values.
-```
