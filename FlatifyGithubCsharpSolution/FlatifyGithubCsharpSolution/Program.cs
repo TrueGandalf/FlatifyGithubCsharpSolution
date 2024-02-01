@@ -32,9 +32,11 @@ class Program
     static async Task FetchAndConcatenateFiles(string owner, string repo, string path, StringBuilder allCode)
     {
         IConfiguration configuration = new ConfigurationBuilder()
-                                   .AddJsonFile("appsettings.json")
-                                   .Build();
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
         string githubToken = configuration["GitHubToken"];
+        Console.WriteLine(githubToken); // Just for demonstration
 
 
         // Update the request URI with the current path
